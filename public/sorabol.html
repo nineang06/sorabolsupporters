@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서라벌 생활 서포터</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .header .title {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: hsl(120, 70%, 38%, 0.7)
+        }
+        .header .title img {
+            margin-left: 10px; /* 이미지와 텍스트 사이의 간격 */
+            width: 100px; /* 이미지 너비 조정 */
+            height: 75px; /* 이미지 높이 조정 */
+        }
+        .navigation {
+            list-style: none;
+            display: flex;
+            padding: 0;
+        }
+        .navigation li {
+            margin-left: 30px;
+        }
+        .navigation a {
+            text-decoration: none;
+            color: #333;
+            position: relative;
+        }
+        .navigation a:after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #333;
+            transition: width .3s;
+            position: absolute;
+            left: 0;
+            bottom: -5px; /* Adjust this value to change the distance between the text and the underline */
+        }
+        .navigation a:hover:after {
+            width: 100%;
+        }
+        .tablink {
+            background-color: #f4f4f4;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            margin-top: 10px
+        }
+        .tablink:hover {
+            background-color: #ddd;
+        }
+        .tabContent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+        .reportForm, .reports, .pagination, .purchaseRequests {
+            margin-top: 20px;
+        }
+        .reports, .purchaseRequests {
+            margin-left: 20px;
+            border-left: 2px solid #f4f4f4;
+            padding-left: 20px;
+        }
+        .report {
+            margin-bottom: 10px;
+        }
+        .deleteButton {
+            cursor: pointer;
+            color: red;
+            margin-left: 10px;
+            display: none;
+        }
+        .pagination button {
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .adminContainer {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .adminForm, .adminPosts {
+            width: 45%;
+        }
+        .adminPosts {
+            margin-left: 20px;
+        }
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navigation {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navigation li {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .tablink, .reportForm button {
+                width: 100%;
+                padding: 12px;
+            }
+            .tabContent {
+                padding: 8px;
+            }
+            .reports, .purchaseRequests, .adminForm, .adminPosts {
+                margin-left: 0;
+                border-left: none;
+                width: 100%;
+            }
+            .adminContainer {
+                flex-direction: column;
+            }
+            .report, .purchaseRequests, .adminPosts {
+                font-size: 10.5px; /* 모바일 환경에서 글씨 크기 조정 */
+            }
+        }
+        
+        #adminSection {
+            display: none;
+            margin-top: 20px;
+        }
+        .adminPostsContainer {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            width: 20%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="title">
+        서라벌 생활 서포터
+        <img src="data:image/png;base64,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" alt="로고">
+    </div>
+    <ul class="navigation">
+        <li><a href="javascript:void(0);" id="uniformPurchase">중고교복 구매</a></li>
+        <li><a href="javascript:void(0);" id="lostAndFound">분실물 센터</a></li>
+    </ul>
+    <div id="adminStatus" style="display: none; color: red; font-weight: bold;"></div>
+    <button id="adminLoginBtn" onclick="adminLogin()">관리자 로그인</button>
+</div>
+
+<div id="lostAndFoundTabs" style="display:none;">
+    <button class="tablink" onclick="showLostAndFoundTab('find')">분실물 찾기</button>
+    <button class="tablink" onclick="showLostAndFoundTab('report')">분실물 신고</button>
+</div>
+
+<div id="find" class="tabContent">
+    <h3>분실물 찾기</h3>
+    <div class="reportForm">
+        <input type="text" id="itemNameFind" placeholder="찾고자 하는 분실물 이름">
+        <input type="text" id="searchPlace" placeholder="잃어버린 장소">
+        <input type="text" id="schoolnumber" placeholder="본인학번">
+        <button onclick="submitFindReport()">글 등록</button>
+    </div>
+    <div class="findReports"></div>
+</div>
+
+<div id="report" class="tabContent">
+    <h3>분실물 신고</h3>
+    <div class="reportForm">
+        <input type="text" id="lostItemName" placeholder="분실물 이름">
+        <input type="text" id="foundPlace" placeholder="찾은 장소">
+        <input type="text" id="storagePlace" placeholder="보관 중인 장소">
+        <button onclick="submitReport()">글 등록</button>
+    </div>
+    <div class="reports"></div>
+    <div class="pagination"></div>
+</div>
+
+<div id="uniformPurchaseTabs" style="display:none;">
+    <button class="tablink" onclick="showTab('purchaseRequest')">교복 구매 신청</button>
+    <button id="adminPostToggle" onclick="toggleAdminPosts()">관리자 글</button>
+</div>
+
+<div id="purchaseRequest" class="tabContent">
+    <h3>교복 구매 신청</h3>
+    <div class="purchaseForm">
+        <select id="itemType">
+            <option value="">교복 종류 선택</option>
+            <option value="넥타이">넥타이</option>
+            <option value="마이">마이</option>
+            <option value="춘추복 바지">춘추복 바지</option>
+            <option value="춘추복 셔츠">춘추복 셔츠</option>
+            <option value="생활복 반팔(초록색)">생활복 반팔(초록색)</option>
+            <option value="생활복 반팔(흰색)">생활복 반팔(흰색)</option>
+            <option value="생활복 반바지">생활복 반바지</option>
+            <option value="체육복 긴팔">체육복 긴팔</option>
+            <option value="체육복 반팔">체육복 반팔</option>
+            <option value="체육복 긴바지">체육복 긴바지</option>
+            <option value="체육복 반바지">체육복 반바지</option>
+            <option value="조끼">조끼</option>
+        </select>
+        <br><br>
+        <input type="text" id="studentNumber" placeholder="본인학번">
+        <br><br>
+        <button onclick="submitPurchaseRequest()">구매 신청</button>
+    </div>
+    <div class="purchaseRequests"></div>
+</div>
+
+<div id="adminPostsContainer" class="adminPostsContainer">
+    <div class="adminPosts">
+        <h3>관리자 글</h3>
+    </div>
+    <div id="adminSection">
+        <h3>관리자 글 등록</h3>
+        <input type="text" id="adminPostTitle" placeholder="제목">
+        <textarea id="adminPostContent" placeholder="내용"></textarea>
+        <br><br>
+        <button onclick="submitAdminPost()">글 등록</button>
+    </div>
+</div>
+
+<script>
+const SERVER_URL = 'http://localhost:3000';
+let isAdmin = false;
+
+function toggleAdminPosts() {
+    var adminPostsContainer = document.getElementById('adminPostsContainer');
+    var isAdmin = localStorage.getItem('token') !== null;
+
+    if (adminPostsContainer.style.display === 'block') {
+        adminPostsContainer.style.display = 'none';
+    } else {
+        adminPostsContainer.style.display = 'block';
+        document.getElementById('adminSection').style.display = isAdmin ? 'block' : 'none';
+    }
+}
+
+// 관리자 로그인 함수
+async function adminLogin() {
+    if (isAdmin) {
+        isAdmin = false;
+        localStorage.removeItem('token');
+        document.getElementById('adminLoginBtn').textContent = '관리자 로그인';
+        document.getElementById('adminStatus').style.display = 'none';
+        document.getElementById('adminSection').style.display = 'none';
+        hideDeleteButtons();
+        alert('관리자 로그아웃에 성공했습니다.');
+        return;
+    }
+    
+    const username = prompt('사용자 이름을 입력하세요:');
+    const password = prompt('비밀번호를 입력하세요:');
+    const response = await fetch(`${SERVER_URL}/login`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
+    const data = await response.json();
+    if (response.ok) {
+        localStorage.setItem('token', data.token);
+        document.getElementById('adminLoginBtn').textContent = '관리자 로그아웃';
+        document.getElementById('adminStatus').style.display = 'block';
+        document.getElementById('adminStatus').textContent = '관리자 로그인에 성공했습니다.';
+        isAdmin = true;
+        showDeleteButtons();
+        // 관리자 글 섹션이 열려 있는 경우 관리자 글 등록 섹션도 보이도록 설정
+        if (document.getElementById('adminPostsContainer').style.display === 'block') {
+            document.getElementById('adminSection').style.display = 'block';
+        }
+    } else {
+        alert('로그인 실패: ' + data.message);
+    }
+}
+
+function showDeleteButtons() {
+    const deleteButtons = document.querySelectorAll('.deleteButton');
+    deleteButtons.forEach(button => {
+        button.style.display = 'inline';
+    });
+}
+
+function hideDeleteButtons() {
+    const deleteButtons = document.querySelectorAll('.deleteButton');
+    deleteButtons.forEach(button => {
+        button.style.display = 'none';
+    });
+}
+
+async function deleteReport(element) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('삭제 권한이 없습니다.');
+        return;
+    }
+
+    const response = await fetch(`${SERVER_URL}/delete-comment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (response.ok) {
+        element.parentElement.remove();
+        alert('댓글이 삭제되었습니다.');
+    } else {
+        const data = await response.json();
+        alert('삭제 실패: ' + data.message);
+    }
+}
+
+async function submitAdminPost() {
+    const title = document.getElementById('adminPostTitle').value;
+    const content = document.getElementById('adminPostContent').value;
+
+    if (title && content) {
+        const post = document.createElement('div');
+        post.innerHTML = `<strong>제목:</strong> ${title} <pre><strong>내용:</strong> ${content}</pre>`;
+        document.querySelector('.adminPosts').appendChild(post);
+
+        // 입력 필드 초기화
+        document.getElementById('adminPostTitle').value = '';
+        document.getElementById('adminPostContent').value = '';
+
+        // 7일 후 자동 삭제
+        setTimeout(() => {
+            post.remove();
+        }, 7 * 24 * 60 * 60 * 1000);
+    } else {
+        alert('답글을 입력해주세요.');
+    }
+}
+
+document.getElementById('lostAndFound').addEventListener('click', function() {
+    var tabs = document.getElementById('lostAndFoundTabs');
+    tabs.style.display = tabs.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('adminPostsContainer').style.display = 'none';
+});
+
+document.getElementById('uniformPurchase').addEventListener('click', function() {
+    var tabs = document.getElementById('uniformPurchaseTabs');
+    tabs.style.display = tabs.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('adminPostsContainer').style.display = 'none';
+});
+
+function showLostAndFoundTab(tabName) {
+    var i, tabContent;
+    tabContent = document.getElementsByClassName('tabContent');
+    for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = 'none';
+    }
+    document.getElementById(tabName).style.display = 'block';
+    document.getElementById('adminPostsContainer').style.display = 'none';
+}
+
+function showTab(tabName) {
+    var i, tabContent;
+    tabContent = document.getElementsByClassName('tabContent');
+    for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = 'none';
+    }
+    document.getElementById(tabName).style.display = 'block';
+    document.getElementById('adminPostsContainer').style.display = 'block';
+}
+
+function submitReport() {
+    var lostItemName = document.getElementById('lostItemName').value;
+    var foundPlace = document.getElementById('foundPlace').value;
+    var storagePlace = document.getElementById('storagePlace').value;
+    var reports = document.querySelector('.reports');
+
+    if (lostItemName && foundPlace && storagePlace) {
+        var report = document.createElement('div');
+        report.classList.add('report');
+        var currentTime = new Date().toLocaleString();
+        report.innerHTML = `<strong>분실물:</strong> ${lostItemName}, <strong>찾은 장소:</strong> ${foundPlace}, <strong>보관 장소:</strong> ${storagePlace}, <strong>시간:</strong> ${currentTime}<span class="deleteButton" onclick="deleteReport(this)">[삭제]</span>`;
+        reports.insertBefore(report, reports.firstChild);
+
+        // 입력 필드 초기화
+        document.getElementById('lostItemName').value = '';
+        document.getElementById('foundPlace').value = '';
+        document.getElementById('storagePlace').value = '';
+        if (isAdmin) {
+            showDeleteButtons();
+        }
+    } else {
+        alert('모든 필드를 채워주세요.');
+    }
+}
+
+function submitFindReport() {
+    var itemName = document.getElementById('itemNameFind').value;
+    var searchPlace = document.getElementById('searchPlace').value;
+    var schoolnumber = document.getElementById('schoolnumber').value;
+    var findReports = document.querySelector('.findReports');
+
+    if (itemName && searchPlace && schoolnumber) {
+        var report = document.createElement('div');
+        report.classList.add('report');
+        var currentTime = new Date().toLocaleString();
+        report.innerHTML = `
+            <strong>찾고자 하는 분실물:</strong> ${itemName}, 
+            <strong>잃어버린 장소:</strong> ${searchPlace}, 
+            <strong>본인학번:</strong> ${schoolnumber},
+            <strong>시간:</strong> ${currentTime}
+            <span class="deleteButton" onclick="deleteReport(this)">[삭제]</span>
+            <button onclick="toggleReplyForm(this)">답글 달기</button>
+            <div class="replyForm" style="display:none;">
+                <input type="text" placeholder="답글 입력" class="replyInput">
+                <button onclick="submitReply(this)">답글 등록</button>
+            </div>
+            <div class="replies"></div>
+        `;
+        findReports.insertBefore(report, findReports.firstChild);
+
+        // 입력 필드 초기화
+        document.getElementById('itemNameFind').value = '';
+        document.getElementById('searchPlace').value = '';
+        document.getElementById('schoolnumber').value = '';
+        if (isAdmin) {
+            showDeleteButtons();
+        }
+    } else {
+        alert('모든 필드를 채워주세요.');
+    }
+}
+
+function submitPurchaseRequest() {
+    var itemType = document.getElementById('itemType').value;
+    var studentNumber = document.getElementById('studentNumber').value;
+    var purchaseRequests = document.querySelector('.purchaseRequests');
+
+    if (itemType && studentNumber) {
+        var request = document.createElement('div');
+        var currentTime = new Date().toLocaleString();
+        request.innerHTML = `<strong>교복 종류:</strong> ${itemType}, <strong>학번:</strong> ${studentNumber}, <strong>시간:</strong> ${currentTime}<span class="deleteButton" onclick="deleteReport(this)">[삭제]</span>`;
+        purchaseRequests.insertBefore(request, purchaseRequests.firstChild);
+
+        // 입력 필드 초기화ㄴ
+        document.getElementById('itemType').value = '';
+        document.getElementById('studentNumber').value = '';
+        if (isAdmin) {
+            showDeleteButtons();
+        }
+    } else {
+        alert('모든 필드를 채워주세요.');
+    }
+}
+
+// 답글 달기 폼을 보여주는 함수
+function showReplyForm(button) {
+    var replyForm = button.nextElementSibling;
+    replyForm.style.display = replyForm.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleReplyForm(button) {
+    var replyForm = button.nextElementSibling;
+    var repliesContainer = button.nextElementSibling.nextElementSibling;
+
+    if (replyForm.style.display === 'block') {
+        replyForm.style.display = 'none';
+        repliesContainer.style.display = 'none';
+    } else {
+        replyForm.style.display = 'block';
+        repliesContainer.style.display = 'block';
+    }
+}
+
+// 답글을 등록하는 함수
+function submitReply(button) {
+    var replyInput = button.previousElementSibling.value; // 답글 입력 필드의 값
+    if (replyInput) {
+        var repliesContainer = button.parentElement.nextElementSibling; // 답글을 표시할 컨테이너
+        var reply = document.createElement('div');
+        reply.textContent = replyInput; // 답글 내용 설정
+        repliesContainer.insertBefore(reply, repliesContainer.firstChild); // 최신 답글이 위로 오도록
+        repliesContainer.style.display = 'block'; // 답글 입력 후 답글 표시
+        // 답글 입력 필드 초기화
+        button.previousElementSibling.value = '';
+    } else {
+        alert('답글을 입력해주세요.');
+    }
+}
+</script>
+
+</body>
+</html>
+    
+
+    
